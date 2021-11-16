@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { format, parseISO } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 
@@ -60,14 +61,23 @@ const Episode = ({episode}: EpisodeProps) => {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
+    const { data } = await api.get('/episodes', {
+        params: {
+            _limit: 2,
+            _sort: 'publisher_at',
+            _order: 'desc'
+        }   
+    });
+
+  const paths = data.map((episode) => {
+      return {
+          params: {
+              id: episode.id,
+          }
+      }
+  })
     return {
-        paths: [
-            {
-                params: {
-                    id: 'a-importancia-da-contribuicao-em-open-source'
-                }
-            }
-        ],
+        paths,
         fallback: 'blocking',
     }
 }
